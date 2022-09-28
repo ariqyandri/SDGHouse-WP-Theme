@@ -1,0 +1,132 @@
+<?php
+/**
+ * Template Name: Events and Agenda
+ *
+ * Selectable from a dropdown menu on the edit page screen.
+ */
+  get_header();
+  global $post;
+  $page_id = $post->ID; 
+  $post_type = get_field("page_type") == "default" ? 'section' : get_field("page_type").'_section';
+?>
+
+
+<!-- Page Header -->
+<?php
+  get_template_part('templates/page-header','page-header');
+
+?>
+<!--  -->
+
+<!-- Info and CC -->
+
+<div class="content" data-aos="fade-up">
+  
+  <div class="col-center wrap">
+    <h1><?php the_field("header_1");?></h1>
+    <?php the_field("text_1");?>
+  </div>
+
+
+  <div class="filter_btns row center no-padding-bottom" id="filterBtnContainer">
+    <button class="filter_btn active" onclick="filterSelection('all')">
+      <?php pll_e("All") ?>
+
+    </button>   
+      <?php 
+      $terms = array(
+          array("today", pll__("Today")),
+          array("this-week", pll__("This Week")),
+          array("this-month", pll__("This Month"))
+      );
+      
+     foreach ($terms as $term) {
+     ?>
+      
+      <button class="filter_btn" onclick="filterSelection('<?php echo $term[0] ?>')">
+        <?php echo $term[1] ?>
+      </button>
+
+     <?php } ?>
+      </ul>
+  </div> 
+
+  <div class="row event-page wrap" data-aos="fade-up">
+
+    <?php 
+      echo do_shortcode(get_field("shortcode_1"));
+    ?> 
+  </div>
+
+
+</div>
+
+<script src="<?php echo get_template_directory_uri()."/assets/js/agenda-filter.js"?>"></script>
+
+<!-- Filter Script -->
+<script type="text/javascript">
+    filterSelection("all") // Execute the function and show all columns
+    
+    function filterSelection(c) {
+        var x, i;
+        x = document.getElementsByClassName("calendar-item");
+
+        if (c == "all") {
+            c = "";
+            // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not selected
+            for (i = 0; i < x.length; i++) {
+            w3RemoveClass(x[i], "show");
+            console.log(x[i].className.indexOf("unavailable"));
+            if (
+                x[i].className.indexOf(c) > -1 &&
+                x[i].className.indexOf("unavailable") == -1
+            )
+                w3AddClass(x[i], "show");
+            }
+        } else {
+            for (i = 0; i < x.length; i++) {
+            w3RemoveClass(x[i], "show");
+            if (x[i].className.indexOf(c) > -1 ) w3AddClass(x[i], "show");
+            }
+        }
+    }
+
+    // Show filtered elements
+    function w3AddClass(element, name) {
+        var i, arr1, arr2;
+        arr1 = element.className.split(" ");
+        arr2 = name.split(" ");
+        for (i = 0; i < arr2.length; i++) {
+            if (arr1.indexOf(arr2[i]) == -1) {
+            element.className += " " + arr2[i];
+            }
+        }
+    }
+
+    // Hide elements that are not selected
+    function w3RemoveClass(element, name) {
+        var i, arr1, arr2;
+        arr1 = element.className.split(" ");
+        arr2 = name.split(" ");
+        for (i = 0; i < arr2.length; i++) {
+            while (arr1.indexOf(arr2[i]) > -1) {
+            arr1.splice(arr1.indexOf(arr2[i]), 1);
+            }
+        }
+        element.className = arr1.join(" ");
+    }
+
+    // Add active class to the current button (highlight it)
+    var btnContainer = document.getElementById("filterBtnContainer");
+    var btns = btnContainer.getElementsByClassName("filter_btn");
+    for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener("click", function(){
+        var current = document.getElementsByClassName("active");
+        current[0].className = current[0].className.replace(" active", "");
+        this.className += " active";
+    });
+    }
+</script>
+<!--  -->
+
+<?php get_footer(); ?>
